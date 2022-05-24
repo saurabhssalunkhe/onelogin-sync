@@ -1,0 +1,28 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      java: openjdk8
+    commands:
+# This isn't necessary at the moment, but sometimes the build images fall behind current version of the AWS CLI
+#      - pip install --upgrade awscli
+      - pip install --user aws-sam-cli
+      - USER_BASE_PATH=$(python -m site --user-base)
+      - export PATH=$PATH:$USER_BASE_PATH/bin
+  build:
+    commands:
+      - echo Build started on `date`
+      - mvn clean package
+      - aws cloudformation package --debug --template-file template.yaml --s3-bucket onelogin-sync-codepipeline-prod --output-template-file  packaged-template.yaml
+artifacts:
+  files:
+      - target/onelogin-sync-0.1.jar
+      - packaged-template.yaml
+      - codedeploy.yml
+cache:
+  # Cache maven and Python downloads
+  paths:
+    - '/root/.m2/**/*'
+    - '/root/.local/**/*'
+  ## sam deploy --template-file packaged-template.yaml --stack-name ${APP_STACK_NAME} --capabilities CAPABILITY_IAM --no-fail-on-empty-changeset

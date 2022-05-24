@@ -1,0 +1,219 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: onelogin-sync-data-pipeline
+
+Globals:
+  Function:
+    Runtime: java8
+    MemorySize: 512
+    Timeout: 10
+    Environment:
+      Variables:
+        TABLE_NAME: data-table
+        weeklyupdate: Saturday
+Resources:
+  PipelineStartBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: "onelogin-sync-adpprod"
+  FanOutTopic:
+    Type: AWS::SNS::Topic
+  OneloginSyncLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: target/onelogin-sync-0.1.jar
+      Handler: com.icahn.ManageUserHandler::handleRequest
+      MemorySize: 3008
+      Timeout: 900
+      Role: arn:aws:iam::318688560528:role/OneLogin_Sync_Lambda_Role #arn:aws:iam::330526109826:role/OneLogin_Sync_Lambda_Role
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-043971818756424f9
+        SubnetIds:
+          - subnet-0e129068b71822e27
+          - subnet-0eb815dfed2a0f4cd
+      Environment:
+       Variables:
+           FAN_OUT_TOPIC: !Ref FanOutTopic
+      Policies:
+      - S3ReadPolicy:
+          BucketName: !Sub ${AWS::StackName}-${AWS::AccountId}-${AWS::Region}-start
+      - SNSPublishMessagePolicy:
+          TopicName: !GetAtt FanOutTopic.TopicName
+
+#  DisableOneloginSyncLambda:
+#    Type: AWS::Serverless::Function
+#    Properties:
+#      CodeUri: target/onelogin-sync-0.1.jar
+#      Handler: com.icahn.DisableUserHandler::handleRequest
+#      MemorySize: 3008
+#      Timeout: 900
+#      Role: arn:aws:iam::330526109826:role/OneLogin_Sync_Lambda_Role
+#      VpcConfig:
+#        SecurityGroupIds:
+#          -  sg-043971818756424f9
+#        SubnetIds:
+#          - subnet-0e129068b71822e27
+#          - subnet-0eb815dfed2a0f4cd
+#      Environment:
+#       Variables:
+#           FAN_OUT_TOPIC: !Ref FanOutTopic
+#      Policies:
+#      - S3ReadPolicy:
+#          BucketName: !Sub ${AWS::StackName}-${AWS::AccountId}-${AWS::Region}-start
+#      - SNSPublishMessagePolicy:
+#          TopicName: !GetAtt FanOutTopic.TopicName
+
+  OneLoginSyncStepFunction:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      StateMachineName: !Sub "${AWS::StackName}-OneLoginSyncStepFunction"
+      RoleArn: "arn:aws:iam::318688560528:role/StepFunctions-MyStateMachine-role-d95819a0" #"arn:aws:iam::330526109826:role/StepFunctions-MyStateMachine-role-d95819a0"
+      DefinitionString:
+        !Sub
+          - |-
+            {
+              "Comment": "Create or Update User",
+              "StartAt": "ConfigureCount",
+              "States": {
+                "ConfigureCount": {
+                  "Type": "Pass",
+                  "Result": {
+                    "employeeNum": 0
+                  },
+                  "ResultPath": "$",
+                  "Next": "UserIterator"
+                },
+                "UserIterator": {
+                  "Type": "Task",
+                  "Resource": "${lambdaArn}",
+                  "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "States.TaskFailed"
+                      ],
+                      "IntervalSeconds": 1,
+                      "MaxAttempts": 2,
+                      "BackoffRate": 2
+                    }
+                  ],
+                  "Next": "IsCountReached"
+                },
+                "IsCountReached": {
+                   "Type": "Choice",
+                   "Choices": [
+                     {
+                       "Variable": "$.continue",
+                       "BooleanEquals": true,
+                       "Next": "ProcessUser"
+                     }
+                   ],
+                   "Default": "Done"
+                },
+                "ProcessUser": {
+                   "Comment": "Create or update user to run a specific number of times",
+                   "Type": "Pass",
+                   "Result": {
+                     "success": true
+                   },
+                   "ResultPath": "$.result",
+                   "Next": "UserIterator"
+                },
+                "Done": {
+                   "Type": "Pass",
+                   "End": true
+                }
+              }
+            }
+
+          - {lambdaArn: !GetAtt [ OneloginSyncLambda, Arn ]}
+            
+#  DisableOneLoginUserStepFunction:
+#    Type: AWS::StepFunctions::StateMachine
+#    Properties:
+#      StateMachineName: !Sub "${AWS::StackName}-DisableOneLoginUserStepFunction"
+#      RoleArn: "arn:aws:iam::330526109826:role/StepFunctions-MyStateMachine-role-d95819a0"
+#      DefinitionString:
+#        !Sub
+#          - |-
+#             {
+#               "Comment": "Disable Onelogin User",
+#               "StartAt": "DisableUserCount",
+#               "States": {
+#                 "DisableUserCount": {
+#                   "Type": "Pass",
+#                   "Result": {
+#                   "start": 0,
+#                   "batchsize":800,
+#                   "end":800,
+#                   "batchnumber":1
+#                   },
+#                   "ResultPath": "$",
+#                   "Next": "DisableUserIterator"
+#                 },
+#                 "DisableUserIterator": {
+#                   "Type": "Task",
+#                   "Resource": "${lambdaArn}",
+#                   "Retry": [
+#                     {
+#                       "ErrorEquals": [
+#                         "States.TaskFailed"
+#                       ],
+#                       "IntervalSeconds": 1,
+#                       "MaxAttempts": 2,
+#                       "BackoffRate": 2
+#                     }
+#                    ],
+#                   "Next": "IsDisableCountReached"
+#                 },
+#                 "IsDisableCountReached": {
+#                  "Type": "Choice",
+#                  "Choices": [
+#                    {
+#                      "Variable": "$.continue",
+#                      "BooleanEquals": true,
+#                      "Next": "DisableUser"
+#                    }
+#                  ],
+#                  "Default": "Disabled"
+#                 },
+#                 "DisableUser": {
+#                   "Comment": "Disable user to run a specific number of times",
+#                   "Type": "Pass",
+#                   "Result": {
+#                     "success": true
+#                   },
+#                   "ResultPath": "$.result",
+#                   "Next": "DisableUserIterator"
+#                 },
+#                 "Disabled": {
+#                   "Type": "Pass",
+#                   "End": true
+#                 }
+#                }
+#             }
+#          - {lambdaArn: !GetAtt [ DisableOneloginSyncLambda, Arn ]}    
+               
+  OneLoginSyncStepFunctionTrigger:
+    Type: "AWS::Events::Rule"
+    Properties:
+      Description: "Daily Scheduled event to trigger OneLoginSyncStepFunction state machine"
+      ScheduleExpression: cron(5 10 ? * * *)
+      State: "ENABLED"
+      Targets:
+        -
+          Arn: !Ref OneLoginSyncStepFunction
+          Id: !GetAtt OneLoginSyncStepFunction.Name
+          RoleArn: "arn:aws:iam::318688560528:role/StepFunctions-MyStateMachine-role-d95819a0" #"arn:aws:iam::330526109826:role/OneloginSyncstepfunctionstartRole"
+
+#  DisableOneLoginUserStepFunctionTrigger:
+#    Type: "AWS::Events::Rule"
+#    Properties:
+#      Description: "Weekend Scheduled event to trigger DisableOneLoginUserStepFunction state machine"
+#      ScheduleExpression: cron(5 10 ? * SAT *)
+#      State: "ENABLED"
+#      Targets:
+#        -
+#          Arn: !Ref DisableOneLoginUserStepFunction
+#          Id: !GetAtt DisableOneLoginUserStepFunction.Name
+#          RoleArn: "arn:aws:iam::330526109826:role/OneloginSyncstepfunctionstartRole"
