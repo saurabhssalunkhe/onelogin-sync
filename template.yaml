@@ -28,10 +28,10 @@ Resources:
       Role: arn:aws:iam::318688560528:role/OneLogin_Sync_Lambda_Role #arn:aws:iam::330526109826:role/OneLogin_Sync_Lambda_Role
       VpcConfig:
         SecurityGroupIds:
-          - sg-043971818756424f9
+          - sg-0901c0111c7be7b70
         SubnetIds:
-          - subnet-0e129068b71822e27
-          - subnet-0eb815dfed2a0f4cd
+          - subnet-0fcb22677971de868	
+          - subnet-0df53edc3503461d5
       Environment:
        Variables:
            FAN_OUT_TOPIC: !Ref FanOutTopic
