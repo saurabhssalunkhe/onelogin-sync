@@ -14,8 +14,7 @@ phases:
 #      - sam deploy --template-file  $CODEBUILD_SRC_DIR/artifacts/packaged-template.yaml --stack-name ${APP_STACK_NAME} --capabilities CAPABILITY_IAM --no-fail-on-empty-changeset
      # - sam deploy --template-file   packaged-template.yaml --stack-name ${APP_STACK_NAME} --capabilities CAPABILITY_NAMED_IAM
       - sam deploy --template-file packaged-template.yaml --stack-name onelogin-sync-lambda --capabilities CAPABILITY_IAM --no-fail-on-empty-changeset --region us-east-1 $TAGS
-      - sam deploy --template-file packaged-template-dr.yaml --stack-name onelogin-sync-lambda --capabilities CAPABILITY_IAM --no-fail-on-empty-changeset --region us-east-2 $TAGS
-     
+
 cache:
   # Cache maven and Python downloads
   paths:
