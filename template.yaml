@@ -25,13 +25,13 @@ Resources:
       Handler: com.icahn.ManageUserHandler::handleRequest
       MemorySize: 3008
       Timeout: 900
-      Role: {{resolve:secretsmanager:awsRolesARN:SecretString:OneLogin_Sync_Lambda_Role}} #arn:aws:iam::330526109826:role/OneLogin_Sync_Lambda_Role
+      Role: {resolve:secretsmanager:awsRolesARN:SecretString:OneLogin_Sync_Lambda_Role} #arn:aws:iam::330526109826:role/OneLogin_Sync_Lambda_Role
       VpcConfig:
         SecurityGroupIds:
-          - {{resolve:secretsmanager:vpcConfig:SecretString:securityGroupId}}
+          - {resolve:secretsmanager:vpcConfig:SecretString:securityGroupId}
         SubnetIds:
-          - {{resolve:secretsmanager:vpcConfig:SecretString:subnet1}}
-          - {{resolve:secretsmanager:vpcConfig:SecretString:subnet2}}
+          - {resolve:secretsmanager:vpcConfig:SecretString:subnet1}
+          - {resolve:secretsmanager:vpcConfig:SecretString:subnet2}
       Environment:
        Variables:
            FAN_OUT_TOPIC: !Ref FanOutTopic
@@ -68,7 +68,7 @@ Resources:
     Type: AWS::StepFunctions::StateMachine
     Properties:
       StateMachineName: !Sub "${AWS::StackName}-OneLoginSyncStepFunction"
-      RoleArn: {{resolve:secretsmanager:awsRolesARN:SecretString:StepFunctions-MyStateMachine-role}} #"arn:aws:iam::330526109826:role/StepFunctions-MyStateMachine-role-d95819a0"
+      RoleArn: {resolve:secretsmanager:awsRolesARN:SecretString:StepFunctions-MyStateMachine-role} #"arn:aws:iam::330526109826:role/StepFunctions-MyStateMachine-role-d95819a0"
       DefinitionString:
         !Sub
           - |-
@@ -204,7 +204,7 @@ Resources:
         -
           Arn: !Ref OneLoginSyncStepFunction
           Id: !GetAtt OneLoginSyncStepFunction.Name
-          RoleArn: {{resolve:secretsmanager:awsRolesARN:SecretString:StepFunctions-MyStateMachine-role}} #"arn:aws:iam::330526109826:role/OneloginSyncstepfunctionstartRole"
+          RoleArn: {resolve:secretsmanager:awsRolesARN:SecretString:StepFunctions-MyStateMachine-role} #"arn:aws:iam::330526109826:role/OneloginSyncstepfunctionstartRole"
 
 #  DisableOneLoginUserStepFunctionTrigger:
 #    Type: "AWS::Events::Rule"
