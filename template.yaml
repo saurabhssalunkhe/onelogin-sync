@@ -15,7 +15,7 @@ Resources:
   PipelineStartBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: "onelogin-sync-adpprod"
+      BucketName: "onelogin-sync-saurabhtest"
   FanOutTopic:
     Type: AWS::SNS::Topic
   OneloginSyncLambda:
