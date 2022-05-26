@@ -30,7 +30,7 @@ Resources:
         SecurityGroupIds:
           - sg-0901c0111c7be7b70
         SubnetIds:
-          - subnet-0fcb22677971de868	
+          - subnet-0fcb22677971de868
           - subnet-0df53edc3503461d5
       Environment:
        Variables:
