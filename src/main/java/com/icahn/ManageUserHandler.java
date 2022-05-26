@@ -25,6 +25,6 @@ public class ManageUserHandler implements RequestStreamHandler{
 	public void handleRequest(InputStream input, OutputStream output,
 			Context context) throws IOException {
 		System.out.print("handleRequest method called");
-		output.write("handler executed...");
+		//output.write(0);
 	}
 }
