@@ -16,7 +16,7 @@ phases:
       - mvn clean package
       - pwd
       - aws cloudformation package --debug --template-file template.yaml --s3-bucket onelogin-sync-codepipeline-testsaurabh --output-template-file  packaged-template.yaml
-      - aws cloudformation deploy --template-file packaged-template.yaml --stack-name onelogin-sync-lambda --capabilities CAPABILITY_IAM --no-fail-on-empty-changeset
+      - aws cloudformation deploy --template-file packaged-template.yaml --stack-name onelogin-sync-lambda --capabilities CAPABILITY_IAM
 
 artifacts:
   files:
