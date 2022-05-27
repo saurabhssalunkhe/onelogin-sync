@@ -3,7 +3,7 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      java: openjdk8
+      java: corretto8
     commands:
 # This isn't necessary at the moment, but sometimes the build images fall behind current version of the AWS CLI
 #      - pip install --upgrade awscli
@@ -14,7 +14,7 @@ phases:
     commands:
       - echo Build started on `date`
       - mvn clean package
-      - aws cloudformation package --debug --template-file template.yaml --s3-bucket onelogin-sync-codepipeline-testsaurabh --output-template-file  packaged-template.yaml
+      - aws cloudformation package --debug --template-file template.yaml --s3-bucket onelogin-sync-pipeline --output-template-file  packaged-template.yaml
 	  - sam deploy --template-file packaged-template.yaml --stack-name onelogin-sync-lambda --capabilities CAPABILITY_IAM --no-fail-on-empty-changeset --region us-east-1 $TAGS
 
 artifacts:
