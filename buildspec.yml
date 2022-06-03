@@ -2,7 +2,7 @@ version: 0.2
 
 env:
     parameter-store:
-        AWS_ACCESS_KEY_ID_PARAM: /OneLoginSync/FeedBucket
+        AWS_ACCESS_KEY_ID_PARAM: /awsRolesARN/FeedBucket
 
 phases:
   install:
