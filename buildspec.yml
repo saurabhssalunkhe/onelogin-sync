@@ -15,7 +15,7 @@ phases:
       - echo Build started on `date`
       - mvn clean package
       - pwd
-      - aws cloudformation package --debug --template-file template.yaml --s3-bucket {resolve:secretsmanager:awsRolesARN:SecretString:FeedBucket} --output-template-file  packaged-template.yaml
+      - aws cloudformation package --debug --template-file template.yaml --s3-bucket {{resolve:secretsmanager:awsRolesARN:SecretString:FeedBucket}} --output-template-file  packaged-template.yaml
       - aws cloudformation deploy --template-file packaged-template.yaml --stack-name onelogin-sync-lambda3 --capabilities CAPABILITY_IAM
 
 artifacts:
