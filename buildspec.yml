@@ -1,9 +1,4 @@
 version: 0.2
-
-env:
-    secrets-manager:
-        BUCKET_NAME: "OneLoginSync:FeedBucket"
-
 phases:
   install:
     runtime-versions:
