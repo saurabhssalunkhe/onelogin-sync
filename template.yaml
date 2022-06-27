@@ -68,7 +68,7 @@ Resources:
     Type: AWS::StepFunctions::StateMachine
     Properties:
       StateMachineName: !Sub "${AWS::StackName}-OneLoginSyncStepFunction"
-      RoleArn: {resolve:secretsmanager:awsRolesARN:SecretString:StepFunctions-MyStateMachine-role}   # "arn:aws:iam::318688560528:role/StepFunctions-MyStateMachine-role-d95819a0" #"arn:aws:iam::330526109826:role/StepFunctions-MyStateMachine-role-d95819a0"
+      RoleArn: "arn:aws:iam::318688560528:role/StepFunctions-MyStateMachine-role-d95819a0"   # "arn:aws:iam::318688560528:role/StepFunctions-MyStateMachine-role-d95819a0" #"arn:aws:iam::330526109826:role/StepFunctions-MyStateMachine-role-d95819a0"
       DefinitionString:
         !Sub
           - |-
