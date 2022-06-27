@@ -25,7 +25,8 @@ Resources:
       Handler: com.icahn.ManageUserHandler::handleRequest
       MemorySize: 3008
       Timeout: 900
-      Role: {resolve:secretsmanager:awsRolesARN:SecretString:OneLogin_Sync_Lambda_Role}        #arn:aws:iam::318688560528:role/OneLogin_Sync_Lambda_Role #arn:aws:iam::330526109826:role/OneLogin_Sync_Lambda_Role
+      Role: >-
+        {{resolve:secretsmanager:awsRolesARN:SecretString:OneLogin_Sync_Lambda_Role}}       #arn:aws:iam::318688560528:role/OneLogin_Sync_Lambda_Role #arn:aws:iam::330526109826:role/OneLogin_Sync_Lambda_Role
       VpcConfig:
         SecurityGroupIds:
           - sg-0901c0111c7be7b70
@@ -68,7 +69,8 @@ Resources:
     Type: AWS::StepFunctions::StateMachine
     Properties:
       StateMachineName: !Sub "${AWS::StackName}-OneLoginSyncStepFunction"
-      RoleArn: "arn:aws:iam::318688560528:role/StepFunctions-MyStateMachine-role-d95819a0"   # "arn:aws:iam::318688560528:role/StepFunctions-MyStateMachine-role-d95819a0" #"arn:aws:iam::330526109826:role/StepFunctions-MyStateMachine-role-d95819a0"
+      RoleArn: >-
+        {{resolve:secretsmanager:awsRolesARN:SecretString:StepFunctions-MyStateMachine-role-d95819a0}} 
       DefinitionString:
         !Sub
           - |-
