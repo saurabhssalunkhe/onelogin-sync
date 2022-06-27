@@ -1,5 +1,9 @@
 version: 0.2
 
+env:
+    secrets-manager:
+        BUCKET_NAME: "OneLoginSync:FeedBucket"
+
 phases:
   install:
     runtime-versions:
@@ -14,9 +18,8 @@ phases:
     commands:
       - echo Build started on `date`
       - mvn clean package
-      - pwd
       - aws cloudformation package --debug --template-file template.yaml --s3-bucket s3-bucket-oneloginsync-dev2 --output-template-file  packaged-template.yaml
-      - aws cloudformation deploy --template-file packaged-template.yaml --stack-name onelogin-ssync-lambdaDemo --capabilities CAPABILITY_IAM
+      - aws cloudformation deploy --template-file packaged-template.yaml --stack-name onelogin-sync-lambda-autoplus2 --capabilities CAPABILITY_IAM
 
 artifacts:
   files:
