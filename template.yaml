@@ -195,18 +195,6 @@ Resources:
 #                }
 #             }
 #          - {lambdaArn: !GetAtt [ DisableOneloginSyncLambda, Arn ]}    
-               
-  OneLoginSyncStepFunctionTrigger:
-    Type: "AWS::Events::Rule"
-    Properties:
-      Description: "Daily Scheduled event to trigger OneLoginSyncStepFunction state machine"
-      ScheduleExpression: cron(5 10 ? * * *)
-      State: "ENABLED"
-      Targets:
-        -
-          Arn: !Ref OneLoginSyncStepFunction
-          Id: !GetAtt OneLoginSyncStepFunction.Name
-          RoleArn: "arn:aws:iam::318688560528:role/StepFunctions-MyStateMachine-role-d95819a0" #"arn:aws:iam::318688560528:role/StepFunctions-MyStateMachine-role-d95819a0" #"arn:aws:iam::330526109826:role/OneloginSyncstepfunctionstartRole"
 
 #  DisableOneLoginUserStepFunctionTrigger:
 #    Type: "AWS::Events::Rule"
